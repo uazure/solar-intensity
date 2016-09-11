@@ -6,13 +6,16 @@
 	<title>Solar intensity calc</title>
 
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
 	<!-- Latest compiled and minified JavaScript -->
-	<script type="text/javascript" src="https://code.jquery.com/jquery-3.1.0.slim.min.js"></script>
+	<script type="text/javascript" src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+	<script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js"   integrity="sha256-eGE6blurk5sHj+rmkfsGYeKyZx3M4bG+ZlFyA7Kns7E="   crossorigin="anonymous"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
 
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.8/angular.min.js"></script>
 	<script type="text/javascript" src="js/ui-bootstrap-tpls-2.1.3.min.js"></script>
+	<script type="text/javascript" src="js/slider.js"></script>
 	<script type="text/javascript" src="js/app.js"></script>
 	<script type="text/javascript" src="js/geolocation.service.js"></script>
 	<script type="text/javascript" src="js/solar.service.js"></script>
@@ -31,19 +34,27 @@
 			</p>
 		</div>
 	</div>
+	<div ui-slider class="ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all" ng-model="model.hour" min="{{ model.minHour }}" max="{{model.maxHour}}" step="1"></div>
+		{{ sliderOptions }}
 	{{ test }} at {{ solarNoon | date : "short" }}
 	<div>
 		Yielded {{ yield.harvest }} W*h for {{ model.dt | date : shortDate }}.
 		Details:
 		<div class="row" ng-repeat="item in yield.data">
-			<div class="col-sm-3">
+			<div class="col-sm-2">
 				{{ item.time | date : "shortTime" }}
 			</div>
-			<div class="col-sm-3">
-				{{ item.power | number }}
+			<div class="col-sm-2">
+				{{ item.power | number }}, Watts
 			</div>
 			<div class="col-sm-3">
-				{{ item.harvest | number }}
+				{{ item.harvest | number }}, W*h
+			</div>
+			<div class="col-sm-3">
+				{{ item.pos.altitude | number }}, Rad
+			</div>
+			<div class="col-sm-2">
+				{{ item.pos.azimuth | number }}, Rad
 			</div>
 		</div>
 	</div>

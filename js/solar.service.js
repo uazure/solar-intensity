@@ -30,7 +30,7 @@
 				console.log('rayPath', rayPath, 'sunPowerAtSurface', sunPowerAtSurface);
 				var times = sunPosition.getSunTimes(date);
 				// console.log(times);
-				return sunPowerAtSurface;
+				return {pos: pos, power: sunPowerAtSurface};
 			},
 
 			getSolarNoon: function(date) {
@@ -38,8 +38,12 @@
 				return times.solarNoon;
 			},
 
+			getSolarTimes: function(date) {
+				return sunPosition.getSunTimes(date);
+			},
+
 			getYield: function(date) {
-				console.log("calculating yield");
+				console.log("calculating sunYield");
 				var times = sunPosition.getSunTimes(date);
 				var result = {
 					harvest: 0,
@@ -50,14 +54,39 @@
 				var curTime = new Date(times.dawn);
 				do {
 					var power = this.getCurrentPower(curTime);
-					var dHarvest = power * CONST.dt / 3600; // W*h
+					var dHarvest = power.power * CONST.dt / 3600; // W*h
 					result.harvest += dHarvest;
 					console.log('time', curTime, 'power', power, 'harvest', dHarvest, 'total', result.harvest);
-					result.data.push({time: curTime, power: power, dt: CONST.dt, harvest: dHarvest});
+					result.data.push({time: curTime, power: power.power, dt: CONST.dt, harvest: dHarvest, pos: power.pos});
 					curTime = new Date(curTime.getTime() + (CONST.dt * 1000)) ;
 				} while (curTime < times.dusk);
 				return result;
+			},
+
+			// get sunYield on a plane with static orientation during the day
+			getPlaneYield: function(date, orientation) {
+				var normalOrientation = {altitude: (Math.PI / 2) - orientation.altitude, azimuth: orientation.azimuth};
+				var sunYield = this.getYield();
+				var planeYield = {
+					harvest: 0
+				};
+				planeYield.data = sunYield.data.map(function(item) {
+					var powerFactor = Math.abs(Math.cos(item.pos.altitude - normalOrientation.altitude) * Math.cos(item.pos.azimuth - normalOrientation.azimuth));
+					planeYield.harvest += item.harvest*powerFactor;
+					return {
+						time: item.time,
+						power: item.power * powerFactor,
+						sunPower: item.power,
+						powerFactor: powerFactor,
+						dt: item.dt,
+						harvest: item.harvest*powerFactor,
+						pos: pos
+					}
+
+				});
 			}
+
+
 
 		}
 		return solarService;
